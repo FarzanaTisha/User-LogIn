@@ -1,7 +1,8 @@
 <?php
 
-    $error = '';
+	session_start();
 
+    $error = '';
     if(isset($_POST['submit'])) {
        $username = $_POST['username'];
        $password = $_POST['password'];
@@ -11,24 +12,23 @@
        }else {
             $myFile =  fopen("data.txt", "r");
 
-            $data = fread($myFile, filesize("data.txt"));
+			while(!feof($myFile)) {
 
-            fclose($myFile);
-
-            $userData = explode("\n", $data);
-
-             for($i = 0; $i< count($userData)-1; $i++) {
-
-                $json_decode = json_decode($userData[$i], true);
-                if($json_decode['username'] == $username && $json_decode['password'] == $password)
-                {
-                    session_start();
-                    $_SESSION['username'] = $username;
-                    header("Location: success.php");
-                }
-             }
-			 $error = 'invalid login';
-
+				$line = fgets($myFile);
+				$arr = explode(" ", $line);
+				
+				if($username == $arr[0]) {
+					if($password == $arr[1] ) {
+						echo 'You are logged in';
+                 		$_SESSION['userAccount'] = $username;
+                    	header("Location: success.php");
+					} else {
+						$error = 'Password Incorrect';
+					}
+				} else {
+					$error = 'Username not found';
+				}
+			}
        }
     }
 
@@ -74,7 +74,7 @@
 					<h4>Not yet a member?</h4>
 				</td>
 				<td>
-                    <a href="/register.php">Click here to register</a>
+                    <a href="register.php">Click here to register</a>
 				</td>
 			</tr>
 		</table>
